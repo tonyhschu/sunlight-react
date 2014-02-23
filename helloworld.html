@@ -2,11 +2,8 @@
 <html>
   <head>
     <script src="js-lib/jquery-2.1.0.min.js"></script>
-    <script src="js-lib/underscore-min.js"></script>
-    <script src="js-lib/backbone-min.js"></script>
     <script src="build/react.js"></script>
     <script src="build/JSXTransformer.js"></script>
-    <script src="js-lib/react.backbone.js"></script>
     <style type="text/css">
       #container {
         width: 80%;
@@ -29,11 +26,7 @@
     <div id="container"></div>
     <script type="text/jsx">
       /** @jsx React.DOM */
-      var BillViewerModel = Backbone.Model.extend({
-
-      })
-
-      var BillsView = React.createClass({
+      var Bills = React.createClass({
         getInitialState: function() {
           return { data: [{question: "Loading. Hold Please."}], selected: 0 };
         },
@@ -50,31 +43,26 @@
             }.bind(this)
           });
         },
-        componentDidMount: function() {
-          window.onClick(function() {
-            this.setState({ selected: 9 });
-          })
-        },
         render: function() {
           return (
             <div className="Bills">
-              <BillListView data={this.state.data} />
-              <BillPanelView selected={this.state.selected}/>
+              <BillList data={this.state.data} />
+              <BillPanel selected={this.state.selected}/>
             </div>
           )
         }
       })
 
-      var BillCollectionView = React.createClass({
+      var BillList = React.createClass({
         render: function() {
           var billNodes = this.props.data.map(function (bill, index) {
-            return <BillEntryView key={index} title={bill.question} />;
+            return <BillEntry key={index} title={bill.question} />;
           });
           return <ul className="BillList">{billNodes}</ul>;
         }
       });
 
-      var BillEntryView = React.createClass({
+      var BillEntry = React.createClass({
         handleClick: function(event) {
           console.log(this.props.key);
         },
@@ -87,7 +75,7 @@
         }
       });
 
-      var BillPanelView = React.createClass({
+      var BillPanel = React.createClass({
         componentWillMount: function() {
           console.log("heeeeyo?");
         },
@@ -99,7 +87,7 @@
       })
 
       React.renderComponent(
-        <BillsView url={"http://congress.api.sunlightfoundation.com/votes?breakdown.total.Yea__gte=200&chamber=house&congress=112&apikey=5ee3fecf84784ccf8bfbd61a67c82750&fields=question,voter_ids,source"} />,
+        <Bills url={"http://congress.api.sunlightfoundation.com/votes?breakdown.total.Yea__gte=200&chamber=house&congress=112&apikey=5ee3fecf84784ccf8bfbd61a67c82750&fields=question,voter_ids,source"} />,
         document.getElementById('container')
       );
     </script>
