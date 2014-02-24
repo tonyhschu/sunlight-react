@@ -27,6 +27,23 @@
     <div id="container"></div>
     <script type="text/jsx">
       /** @jsx React.DOM */
+      var individual_bill_url = "http://api.realtimecongress.org/api/v1/bills.json?apikey=5ee3fecf84784ccf8bfbd61a67c82750&bill_id="
+
+      // "Model" Stuff
+      $.subscribe("/bills/selected/id", function(bill_id) {
+        $.ajax({
+          url: individual_bill_url + bill_id,
+          dataType: 'jsonp',
+          success: function(data) {
+            $.publish("/bills/selected/bill", [data.bills[0]]);
+          },
+          error: function(xhr, status, err) {
+            console.error(status, err.toString());
+          }
+        });
+      })
+
+      // React Stuff
       var Bills = React.createClass({
         getInitialState: function() {
           return { data: [{question: "Loading. Hold Please."}], selected: 0 };
@@ -43,15 +60,15 @@
             }.bind(this)
           });
 
-          $.subscribe("/bills/selected", function(s){
-            this.setState({ selected : s });
+          $.subscribe("/bills/selected/bill", function(bill){
+            this.setState({ selected : bill });
           }.bind(this));
         },
         render: function() {
           return (
             <div className="Bills">
               <BillList data={this.state.data} />
-              <BillPanel bill={this.state.data[this.state.selected]}/>
+              <BillPanel bill={this.state.selected}/>
             </div>
           )
         }
@@ -60,7 +77,7 @@
       var BillList = React.createClass({
         render: function() {
           var billNodes = this.props.data.map(function (bill, index) {
-            return <BillEntry key={index} title={bill.question} />;
+            return <BillEntry key={index} title={bill.question} bill_id={bill.bill_id} />;
           });
           return <ul className="BillList">{billNodes}</ul>;
         }
@@ -68,7 +85,7 @@
 
       var BillEntry = React.createClass({
         handleClick: function(event) {
-          $.publish("/bills/selected", [this.props.key]);
+          $.publish("/bills/selected/id", [this.props.bill_id]);
         },
         render: function() {
           return (
@@ -82,15 +99,22 @@
       var BillPanel = React.createClass({
         render: function() {
           return (
-            <div>{this.props.bill.question}</div>
+            <div>
+              <h1>{this.props.bill.official_title}</h1>
+              <div>
+                <p>state: {this.props.bill.state}</p>
+              </div>
+            </div>
           )
         }
       })
 
       React.renderComponent(
-        <Bills url={"http://congress.api.sunlightfoundation.com/votes?breakdown.total.Yea__gte=200&chamber=house&congress=112&apikey=5ee3fecf84784ccf8bfbd61a67c82750&fields=question,voter_ids,source"} />,
+        <Bills url={"http://congress.api.sunlightfoundation.com/votes?breakdown.total.Yea__gte=200&chamber=house&congress=112&apikey=5ee3fecf84784ccf8bfbd61a67c82750&fields=question,voter_ids,source,url,bill_id"} />,
         document.getElementById('container')
       );
+
+      //http://api.realtimecongress.org/api/v1/bills.json?apikey=5ee3fecf84784ccf8bfbd61a67c82750&callback=jQuery18308469967732193624_1393206398376&bill_id=hr3606-112&_=1393206398947
     </script>
   </body>
 </html>
