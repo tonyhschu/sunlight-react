@@ -37,7 +37,6 @@
             dataType: 'json',
             success: function(data) {
               this.setState({data: data.results});
-              console.log(data);
             }.bind(this),
             error: function(xhr, status, err) {
               console.error(this.props.url, status, err.toString());
@@ -52,7 +51,7 @@
           return (
             <div className="Bills">
               <BillList data={this.state.data} />
-              <BillPanel selected={this.state.selected}/>
+              <BillPanel bill={this.state.data[this.state.selected]}/>
             </div>
           )
         }
@@ -83,7 +82,7 @@
       var BillPanel = React.createClass({
         render: function() {
           return (
-            <div>{this.props.selected}</div>
+            <div>{this.props.bill.question}</div>
           )
         }
       })
