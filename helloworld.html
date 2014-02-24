@@ -2,6 +2,7 @@
 <html>
   <head>
     <script src="js-lib/jquery-2.1.0.min.js"></script>
+    <script src="js-lib/pubsub.js"></script>
     <script src="build/react.js"></script>
     <script src="build/JSXTransformer.js"></script>
     <style type="text/css">
@@ -42,6 +43,10 @@
               console.error(this.props.url, status, err.toString());
             }.bind(this)
           });
+
+          $.subscribe("/bills/selected", function(s){
+            this.setState({ selected : s });
+          }.bind(this));
         },
         render: function() {
           return (
@@ -64,7 +69,7 @@
 
       var BillEntry = React.createClass({
         handleClick: function(event) {
-          console.log(this.props.key);
+          $.publish("/bills/selected", [this.props.key]);
         },
         render: function() {
           return (
@@ -76,9 +81,6 @@
       });
 
       var BillPanel = React.createClass({
-        componentWillMount: function() {
-          console.log("heeeeyo?");
-        },
         render: function() {
           return (
             <div>{this.props.selected}</div>
